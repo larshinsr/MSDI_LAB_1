@@ -21,11 +21,11 @@ const char matrixRight[SIZE][SIZE] = {
         {'ý', 'ð', 'í', 'æ', 'þ', '÷'},
         {'é', 'û', 'ê', 'ø', ' ', 'ó'} };
 struct LetterPlace {
-  int rowLeft, columnLeft;
-  int rowRight, columnRight;
+  int _rowLeft, _columnLeft;
+  int _rowRight, _columnRight;
 };
-LetterPlace findPlace(char a, char b) {
-  
+LetterPlace FindPlace(char a, char b) {                                     //find place of chars of bigram in squares
+                                                                            //first in left, second in right
   LetterPlace Place;
   
   for (int i = 0; i < SIZE; i++)
@@ -33,12 +33,12 @@ LetterPlace findPlace(char a, char b) {
       
       if (std::tolower(a, std::locale("Russian")) == matrixLeft[i][j]) {
        // std::cout<< i<< ' '<<j<<std::endl;
-        Place.rowLeft = i;
-        Place.columnLeft = j;
+        Place._rowLeft = i;
+        Place._columnLeft = j;
       }
       if (std::tolower(b, std::locale("Russian")) == matrixRight[i][j]){
-        Place.rowRight = i;
-        Place.columnRight = j;
+        Place._rowRight = i;
+        Place._columnRight = j;
       }
     }
     /*for (int i = 0; i < SIZE; i++) {
@@ -51,54 +51,53 @@ LetterPlace findPlace(char a, char b) {
         }
         std::cout<<std::endl;
     }*/
-    //std::cout<<Place.rowLeft<<' '<<Place.columnLeft<<"     "<< Place.rowRight << ' ' << Place.columnRight << std::endl;
+    //std::cout<<Place._rowLeft<<' '<<Place._columnLeft<<"     "<< Place._rowRight << ' ' << Place._columnRight << std::endl;
   return Place;
 }
 
-std::vector<std::pair<char, char>> stringToBigrams(
-        const std::string& str) {
+std::vector<std::pair<char, char>> StringToBigrams(const std::string& str) {        // Parse string to bigrams
       std::vector<std::pair<char, char>> bigramPairs;
       for (int i = 0; i < str.size(); i+=2) {
-            if (i + 1 < str.size()) {  // Ensure there are enough characters for a pair
+            if (i + 1 < str.size()) {                                               // Ensure there are enough characters for a pair
                 bigramPairs.emplace_back(str[i], str[i + 1]);
             } else {
-                bigramPairs.emplace_back(str[i], ' ');  // If the last pair has only one character, pad with 'space'
+                bigramPairs.emplace_back(str[i], ' ');                              // If the last pair has only one character, pad with 'space'
             }
     
       }
       return bigramPairs;
 }
 
-std::pair<char, char> RectangleSwap(LetterPlace place) { //swap characters as another 2 angles
+std::pair<char, char> RectangleSwap(LetterPlace place) {                            // Swap chars to chars in another 2 angles
     
-    if (place.rowLeft == place.rowRight) {
-        int tmp = place.columnLeft;
-        place.columnLeft = place.columnRight;
-        place.columnRight = tmp;
+    if (place._rowLeft == place._rowRight) {
+        int tmp = place._columnLeft;
+        place._columnLeft = place._columnRight;
+        place._columnRight = tmp;
     }
     else {
-        int tmp = place.rowLeft;
-        place.rowLeft = place.rowRight;
-        place.rowRight = tmp;        
+        int tmp = place._rowLeft;
+        place._rowLeft = place._rowRight;
+        place._rowRight = tmp;        
     }
-    std::pair<char,char> newBigram = {matrixLeft[place.rowLeft][place.columnLeft], 
-                                      matrixRight[place.rowRight][place.columnRight]};
+    std::pair<char,char> newBigram = {matrixLeft[place._rowLeft][place._columnLeft],      // Swapped characters
+                                      matrixRight[place._rowRight][place._columnRight]};
     
     return newBigram; 
 }
 
 std::string Encryption(const std::string& _stringForEncryption) {
     std::string _encryptedString;
-    LetterPlace pairPlace;
+    LetterPlace pairPlace;                              
 
-    std::vector<std::pair<char, char>> bigramPairs =
-        stringToBigrams(_stringForEncryption);
+    std::vector<std::pair<char, char>> bigramPairs =        
+        StringToBigrams(_stringForEncryption);                                      // Make bigrams from string
     
     std::pair<char, char > newBigramPairs;
 
     for (const auto& bigram : bigramPairs) {
         //std::cout << (bigram.first) << " " << (bigram.second) << "    ";
-        newBigramPairs = RectangleSwap(findPlace(bigram.first, bigram.second));
+        newBigramPairs = RectangleSwap(FindPlace(bigram.first, bigram.second));     // Swap character to another diagonal in bigram rectangle
         /*if (std::islower(bigram.first, std::locale("Russian"))) // Preserve uppercase
             newBigramPairs.first = std::tolower(newBigramPairs.first, std::locale("Russian"));
         if (std::islower(bigram.second, std::locale("Russian"))) // Preserve uppercase
@@ -113,17 +112,17 @@ std::string Encryption(const std::string& _stringForEncryption) {
     return _encryptedString;
 }
 
-std::string Decryption(const std::string& _stringForDecryption) {
-    std::string _decryptedString;
+std::string Decryption(const std::string& _stringForDecryption) {                    // Work simillary as Encryption
+    std::string _decryptedString;                                                    // allowed by RectangleSwap() function
     LetterPlace pairPlace;
     std::vector<std::pair<char, char>> bigramPairs =
-        stringToBigrams(_stringForDecryption);
+        StringToBigrams(_stringForDecryption);
 
     std::pair<char, char > newBigramPairs;
 
     for (const auto& bigram : bigramPairs) {
         //std::cout << (bigram.first) << " " << (bigram.second) << "    ";
-        newBigramPairs = RectangleSwap(findPlace(bigram.first, bigram.second));
+        newBigramPairs = RectangleSwap(FindPlace(bigram.first, bigram.second));       
         /*if (std::islower(bigram.first, std::locale("Russian"))) // Preserve uppercase
             newBigramPairs.first = std::tolower(newBigramPairs.first, std::locale("Russian"));
         if (std::islower(bigram.second, std::locale("Russian"))) // Preserve uppercase
